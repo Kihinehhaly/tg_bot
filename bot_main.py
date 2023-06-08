@@ -39,7 +39,9 @@ def zodiac(message):
     if message.text[:-3] in signs:
         zodiac_sign = message.text[:-3]
         res = stuff.parse_horo(zodiac_sign.lower())
-        bot.send_message(message.chat.id, text=res)
+        template = stuff.make_template('zodiac')
+        msg = template.render(forecast=res)
+        bot.send_message(message.chat.id, text=msg, parse_mode='html')
 
 
 if __name__ == '__main__':
