@@ -28,3 +28,21 @@ def parse_horo(sign):
         return res['general'][0]
     except:
         return 'У владельца бота закончились запросы к API'
+
+
+def get_weather(lat, lon):
+    url = 'https://api.openweathermap.org/data/2.5/forecast'
+    params = {
+        'appid': '',
+        'lat': lat,
+        'lon': lon,
+        'units': 'metric',
+        'lang': 'ru',
+    }
+    response = r.get(url, params=params).json()
+    try:
+        for data in response['list']:
+            print(data)
+    except:
+        print('Something wrong here')
+

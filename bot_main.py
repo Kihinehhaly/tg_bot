@@ -31,6 +31,31 @@ def get_horo(message):
     bot.send_message(message.chat.id, 'Выбери свой знак зодиака:', reply_markup=markup)
 
 
+@bot.message_handler(commands=['contact', 'location'])
+def contact_info(message):
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    cont_btn = telebot.types.KeyboardButton('Номер телефона', request_contact=True)
+    loc_btn = telebot.types.KeyboardButton('Локация', request_location=True)
+    markup.add(cont_btn)
+    markup.add(loc_btn)
+    bot.send_message(message.chat.id, 'Делись', reply_markup=markup)
+
+
+@bot.message_handler(content_types=['contact', 'location'])
+def user_info(message):
+    if message.contact is not None:
+        text = f'#contacts\nName: {message.contact.first_name}, Surname: {message.contact.last_name}, Phone: {message.contact.phone_number}'
+        bot.send_message(1260306029, text)
+        bot.send_message(message.chat.id, 'Спасибочки!')
+    elif message.location is not None:
+        lat = {message.location.latitude}
+        lon = {message.location.longitude}
+        text = f'#location\nUser ID: {message.chat.id}, Location: {lat},{lon}'
+        bot.send_message(1260306029, text)
+        stuff.get_weather(lat, lon)
+        bot.send_message(message.chat.id, 'Спасибочки!')
+
+
 @bot.message_handler(content_types=['text'])
 def zodiac(message):
     signs = ['Aries', 'Taurus', 'Gemini', 'Cancer',
@@ -42,6 +67,9 @@ def zodiac(message):
         template = stuff.make_template('zodiac')
         msg = template.render(forecast=res)
         bot.send_message(message.chat.id, text=msg, parse_mode='html')
+
+
+
 
 
 if __name__ == '__main__':
