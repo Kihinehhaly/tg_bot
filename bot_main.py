@@ -14,6 +14,13 @@ def start(message):
     bot.pin_chat_message(message.chat.id, message_id=pin.id)
 
 
+@bot.message_handler(commands=['help'])
+def help(message):
+    template = stuff.make_template('help')
+    msg_text = template.render()
+    bot.send_message(message.chat.id, text=msg_text, parse_mode='html')
+
+
 @bot.message_handler(commands=['dog'])
 def send_dog(message):
     img = stuff.get_dog_image()
@@ -31,7 +38,7 @@ def get_horo(message):
     bot.send_message(message.chat.id, 'Выбери свой знак зодиака:', reply_markup=markup)
 
 
-@bot.message_handler(commands=['contact', 'location'])
+@bot.message_handler(commands=['contact', 'weather'])
 def contact_info(message):
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     cont_btn = telebot.types.KeyboardButton('Номер телефона', request_contact=True)
@@ -52,8 +59,23 @@ def user_info(message):
         lon = {message.location.longitude}
         text = f'#location\nUser ID: {message.chat.id}, Location: {lat},{lon}'
         bot.send_message(1260306029, text)
-        stuff.get_weather(lat, lon)
-        bot.send_message(message.chat.id, 'Спасибочки!')
+        weather = stuff.get_weather(lat, lon)
+        bot.send_message(message.chat.id, text=weather, parse_mode='html',
+                         reply_markup=telebot.types.ReplyKeyboardRemove())
+
+
+@bot.callback_query_handler(func=lambda call: call.data in ['low', 'medium', 'high'])
+def handle_password_generate(call):
+    complexity = call.data
+    password = stuff.generate_password(complexity)
+    bot.send_message(call.maessage.chat.id, 'Password: ')
+    bot.send_message(call.message.chat.id, password)
+
+
+@bot.message_handler(commands=['password'])
+def handle_password_send(message):
+    bot.send_message(message.chat.id, 'Выбери сложность пароля: ',
+                     reply_markup=stuff.generate_keyboard())
 
 
 @bot.message_handler(content_types=['text'])
